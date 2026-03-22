@@ -1,0 +1,28 @@
+# local env & caches
+venv/
+.venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# packaging
+dist/
+build/
+*.egg-info/
+.eggs/
+*.egg
+
+# coverage
+.coverage
+.coverage.*
+htmlcov/
+
+# OS / editor noise
+.DS_Store
+Thumbs.db
+
+# local secrets (keep .env.example committed if you use one)
+.env
+.env.local
