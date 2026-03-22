@@ -2,9 +2,9 @@
 
 atpb-gstr command-line utilities.
 
-## Install
+Requires **Python 3.9+**.
 
-From the repo root:
+## Install
 
 ```bash
 python -m venv venv
@@ -12,9 +12,9 @@ source venv/bin/activate
 pip install -e ".[dev]"
 ```
 
-**Windows:** use `venv\Scripts\activate` (cmd) or `venv\Scripts\Activate.ps1` (PowerShell) instead of `source`.
+**Windows:** `venv\Scripts\activate` (cmd) or `venv\Scripts\Activate.ps1` (PowerShell).
 
-The `dev` extra adds **pytest** and **ruff** (lint + format). For a minimal editable install without those tools, use `pip install -e .`.
+`[dev]` includes **pytest**, **ruff**, and **build**. For a slimmer editable install: `pip install -e .` (add `pip install build` if you need `python -m build`).
 
 ## Uninstall
 
@@ -23,70 +23,57 @@ pip uninstall atpb-gstr-clix
 deactivate
 ```
 
-Delete `venv` when done: `rm -rf venv` (Unix) or `Remove-Item -Recurse -Force .\venv` (PowerShell). To clear wheels/sdists from a local build, remove `dist`: `rm -rf dist` (Unix) or `Remove-Item -Recurse -Force .\dist` (PowerShell).
+Optional: remove `venv` or `dist` when you no longer need them (delete those folders).
+
+```bash
+rm -rf venv dist
+```
+
+**Windows:** `rmdir /s /q venv 2>nul & rmdir /s /q dist 2>nul` (cmd) or `Remove-Item -Recurse -Force .\venv, .\dist -ErrorAction SilentlyContinue` (PowerShell).
 
 ## Usage
 
-Requires **Python 3.9+**. With the environment active, either run the installed script or the module:
-
 ```bash
 atpb-gstr-clix --vrsn
-# equivalent:
-python -m atpb_gstr_clix --vrsn
+python -m atpb_gstr_clix --vrsn   # same
 ```
 
-`--vrsn`: version (Git + setuptools-scm, or fallback — see **Build**), `[dev]`/`[prod]`, and wheel build UTC time or `local` when editable.
+`--vrsn` shows version (from Git via setuptools-scm, or fallback — see **Build**), install mode, and build timestamp (`local` when editable).
 
-Generate a 63-character S3 bucket GUID (single line on stdout). PRFX must match `--vldt` rules (lowercase `xxxx` groups separated by hyphens).
+S3-style 63-character bucket GUID (stdout). Prefix must satisfy `--vldt` (lowercase `xxxx` groups, hyphens).
 
 ```bash
 atpb-gstr-clix --s3bx --guid --newx PRFX
-```
-
-Validate one:
-
-```bash
 atpb-gstr-clix --s3bx --guid --vldt GUID
 ```
 
 ## Tests
 
-With the `dev` extra installed:
-
 ```bash
 pytest
-```
-
-From the repo root (with `dev` installed), optional checks:
-
-```bash
 ruff check .
 ruff format --check .
 ```
 
-Use `ruff format .` to apply formatting.
+`ruff format .` applies formatting. Needs `[dev]` (or install those tools yourself).
 
 ## Build
 
-**Version:** setuptools-scm at `python -m build` time from Git tags (e.g. `git tag v0.2.0`); without Git, `fallback_version` in `pyproject.toml` (must match `PKG_VERSION_FALLBACK` in `atpb_gstr_clix/commands/constants.py`). **Timestamp:** `setup.py` writes UTC into the wheel.
+**Version:** setuptools-scm from Git tags at build time (e.g. `git tag v0.2.0`); with no Git, `fallback_version` in `pyproject.toml` — keep in sync with `PKG_VERSION_FALLBACK` in `atpb_gstr_clix/commands/constants.py`. **Timestamp:** `setup.py` writes UTC into wheels.
 
-1. `pytest` (and optionally `ruff check .` / `ruff format --check .`)
-2. `python -m build` (after `pip install build` once). Output: `dist/`.
+1. `pytest` (and optionally ruff, as above)
+2. `python -m build` → `dist/`
 
-Smoke-test install (real path under `dist/`):
-
-PowerShell:
+**Smoke-test the wheel** (Bash expands `*`; PowerShell does not):
 
 ```powershell
 pip install (Get-Item dist\*.whl | Select-Object -First 1)
 ```
 
-Bash (one wheel in `dist/`):
-
 ```bash
 pip install dist/atpb_gstr_clix-*-py3-none-any.whl
 ```
 
-CI without tags: set `SETUPTOOLS_SCM_PRETEND_VERSION` before `python -m build` ([setuptools-scm overrides](https://setuptools-scm.readthedocs.io/en/latest/overrides/)).
+**CI without Git tags:** set `SETUPTOOLS_SCM_PRETEND_VERSION` before `python -m build` ([overrides](https://setuptools-scm.readthedocs.io/en/latest/overrides/)).
 
-Publish (with `twine` installed): `twine check dist/*` then `twine upload dist/*`.
+Not published to PyPI; use `dist/` locally or ship wheels however you prefer.

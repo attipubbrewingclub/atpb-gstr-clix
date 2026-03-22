@@ -8,10 +8,14 @@ dynamic = ["version"]
 description = "atpb-gstr command-line utilities"
 readme = "README.md"
 requires-python = ">=3.9"
+license = { text = "MIT" }
 dependencies = []
 
+[project.urls]
+Repository = "https://github.com/attipubbrewingclub/atpb-gstr-clix"
+
 [project.optional-dependencies]
-dev = ["pytest>=8", "ruff>=0.8"]
+dev = ["build>=1", "pytest>=8", "ruff>=0.8"]
 
 [project.scripts]
 atpb-gstr-clix = "atpb_gstr_clix.clix:main"
